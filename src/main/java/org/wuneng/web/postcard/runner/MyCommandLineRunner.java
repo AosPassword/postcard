@@ -23,7 +23,8 @@ public class MyCommandLineRunner implements CommandLineRunner {
         objectMapper.disableDefaultTyping();
         String user = null;
         user = "{\n" +
-                "          \"gender\" : \"男\",\n" +
+                "          \"is_man\" : \"true\",\n" +
+                "          \"in_school\" : \"true\",\n"+
                 "          \"city\" : \"重庆市\",\n" +
                 "          \"graduation_year\" : 2017,\n" +
                 "          \"major_name\" : \"自动化\",\n" +
@@ -45,7 +46,8 @@ public class MyCommandLineRunner implements CommandLineRunner {
                 "        }";
         userService.add_user(user);
         String user1 = "{\n" +
-                "          \"gender\" : \"男\",\n" +
+                "          \"is_man\" : \"true\",\n" +
+                "          \"in_school\" : \"true\",\n"+
                 "          \"city\" : \"重庆市\",\n" +
                 "          \"graduation_year\" : 2017,\n" +
                 "          \"major_name\" : \"自动化\",\n" +
@@ -66,7 +68,8 @@ public class MyCommandLineRunner implements CommandLineRunner {
                 "          \"job\":\"划水 \"" +
                 "        }";
         String user2 = "{\n" +
-                "          \"gender\" : \"男\",\n" +
+                "          \"is_man\" : \"true\",\n" +
+                "          \"in_school\" : \"true\",\n"+
                 "          \"city\" : \"重庆市\",\n" +
                 "          \"graduation_year\" : 2017,\n" +
                 "          \"major_name\" : \"自动化\",\n" +

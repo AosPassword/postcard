@@ -124,6 +124,7 @@ public class UserController {
         if (result.isSuccess()) {
             Claims claims = (Claims) result.getPayload();
             if (claims.getSubject().equals(user_log_in)) {
+                logger.debug("token true");
                 result = userService.change_password(password, Integer.parseInt(claims.getId()), old_password);
             }
         }

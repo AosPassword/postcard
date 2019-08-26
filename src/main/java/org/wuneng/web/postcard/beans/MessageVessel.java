@@ -8,7 +8,21 @@ public class MessageVessel {
     private Integer accept_user_id;
     private String payload;
     private boolean is_string;
-    Timestamp timestamp;
+    private Timestamp timestamp;
+
+    @Override
+    public String toString() {
+        return "MessageVessel{" +
+                "id=" + id +
+                ", send_user_id=" + send_user_id +
+                ", accept_user_id=" + accept_user_id +
+                ", payload='" + payload + '\'' +
+                ", is_string=" + is_string +
+                ", timestamp=" + timestamp +
+                '}';
+    }
+
+    public MessageVessel(){}
 
     public MessageVessel(Integer send_user_id, Integer accept_user_id, String payload, boolean is_string, Timestamp timestamp) {
         this.send_user_id = send_user_id;
@@ -22,8 +36,9 @@ public class MessageVessel {
         this.accept_user_id = message.getAcceptUserId();
         this.payload = payload;
         this.is_string = is_string;
-        this.timestamp = new Timestamp(message.getTime().getSeconds());
+        this.timestamp = new Timestamp(message.getTime().getSeconds()*1000+message.getTime().getNanos()/1000000*1000);
     }
+
 
     public MessageVessel(PostCardMessage.Message message){
         this(message,message.getPayload().toStringUtf8(),true);

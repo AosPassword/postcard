@@ -10,12 +10,13 @@ import java.util.List;
 
 @Service
 public class MessageServiceImpl implements MessageService {
+
     @Autowired
     MessageMapper messageMapper;
 
     @Override
     public void insert_message(MessageVessel messageVessel) {
-
+        messageMapper.insert_message(messageVessel);
     }
 
     @Override

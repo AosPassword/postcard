@@ -46,21 +46,22 @@ public class FilterHandler extends ChannelInboundHandlerAdapter {
                 logger.debug("accept user id:" + accept_user_id);
                 //查看此accept user id是否合法
                 if (!filterService.id_might_constain(accept_user_id)) {
+                    ReferenceCountUtil.release(msg);
                     PostCardMessage.Message result = MessageFactory.getMessage(Constant.ERROR,
                             ByteString.copyFromUtf8(Constant.ACCEPT_USER_IS_NOT_EXIST));
                     ctx.channel().writeAndFlush(result);
-                    ReferenceCountUtil.release(msg);
+
                 }
             }
             PostCardMessage.Message decoration = MessageFactory.getMessage(message, send_user_id, DateUtil.get_stamp());
-            super.channelRead(ctx, decoration);
             ReferenceCountUtil.release(msg);
+            super.channelRead(ctx, decoration);
         } else {
             //不包含说明没法登陆信息
+            ReferenceCountUtil.release(msg);
             PostCardMessage.Message result = MessageFactory.getMessage(Constant.ERROR,
                     ByteString.copyFromUtf8(Constant.PLZ_LOG_IN_FIRST));
             ctx.channel().writeAndFlush(result);
-            ReferenceCountUtil.release(msg);
         }
     }
 }

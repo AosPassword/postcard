@@ -22,12 +22,13 @@ public class DateUtil {
 
     public static Timestamp get_stamp(){
         long millis = System.currentTimeMillis();
-        Timestamp timestamp = Timestamp.newBuilder().setSeconds(millis / 1000).build();
+        Timestamp timestamp = Timestamp.newBuilder().setSeconds(millis / 1000)
+                .setNanos((int) ((millis % 1000) * 1000000)).build();
         return timestamp;
     }
 
     public static Timestamp get_stamp_by_time(java.sql.Timestamp timestamp){
-        Timestamp time = Timestamp.newBuilder().setSeconds(timestamp.getTime()).build();
+        Timestamp time = Timestamp.newBuilder().setSeconds(timestamp.getTime()).setNanos(timestamp.getNanos()).build();
         return time;
     }
 }

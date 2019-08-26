@@ -222,7 +222,9 @@ public class UserServiceImpl implements UserService {
         String slat = usersMapperService.get_salt_by_id(parseInt);
         String slat_old_password = slatService.getSecurePassword(old_password, slat);
         String mysql_old_password = usersMapperService.get_password_by_id(parseInt);
-        if (mysql_old_password!=null) {
+        logger.debug(slat_old_password);
+        logger.debug(mysql_old_password);
+        if (!mysql_old_password.isEmpty()) {
             if (mysql_old_password.equals(slat_old_password)) {
                 String new_salt = slatService.getSalt();
                 String new_password = slatService.getSecurePassword(password, new_salt);
@@ -231,7 +233,6 @@ public class UserServiceImpl implements UserService {
                     result.setSuccess(false);
                 } else {
                     result.setSuccess(true);
-                    result.setPayload(i);
                     return result;
                 }
             }
@@ -463,6 +464,7 @@ public class UserServiceImpl implements UserService {
                         directionService.delete_derections(id,integer);
                     }
                     directionService.insert_directions(jsonArray, id);
+                    result.setSuccess(true);
                 } else {
                     result.setSuccess(false);
                 }
