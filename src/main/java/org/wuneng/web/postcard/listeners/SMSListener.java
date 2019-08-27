@@ -42,7 +42,7 @@ public class SMSListener {
         String code = jsonObject.getString("code");
         String prefix = jsonObject.getString("prefix");
         redisService.put_phone_number(phone_number,code,prefix,code_life);
-        System.out.println(code);
+        logger.debug(code);
         smsService.sendSMS(phone_number,code);
     }
 }

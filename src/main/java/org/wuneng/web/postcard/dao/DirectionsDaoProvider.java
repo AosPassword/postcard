@@ -1,17 +1,21 @@
 package org.wuneng.web.postcard.dao;
 
 import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
 public class DirectionsDaoProvider {
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     public String get_direction(Map<String, List<Integer>> ids) {
         if (!ids.get("ids").isEmpty()) {
             StringBuffer sql = new StringBuffer("SELECT direction_name FROM directions where id in (");
             for (int i = 0; i < ids.get("ids").size(); i++) {
                 if (i < ids.get("ids").size() - 1) {
-                    System.out.println(ids.get("ids").get(i));
+                    logger.debug(ids.get("ids").get(i).toString());
                     sql.append(ids.get("ids").get(i) + ",");
                 } else {
                     sql.append(ids.get("ids").get(i) + ")");
@@ -19,7 +23,7 @@ public class DirectionsDaoProvider {
             }
             return sql.toString();
         }else {
-            System.out.println("null!!!!!!!!!!!!!");
+            logger.debug("null!!!!!!!!!!!!!");
             return null;
         }
     }
@@ -34,7 +38,7 @@ public class DirectionsDaoProvider {
             }
             sql.append("("+id+", "+array.getInt(i)+", 0)");
         }
-        System.out.println(sql);
+        logger.debug(sql.toString());
         return sql.toString();
     }
 }

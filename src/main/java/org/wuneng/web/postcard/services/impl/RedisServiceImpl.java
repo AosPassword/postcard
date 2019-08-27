@@ -28,26 +28,18 @@ public class RedisServiceImpl implements RedisService {
     String large_directions;
     @Value("${redis_config.dir_prefix}")
     String dir_prefix;
-    @Value("${redis_config.user_count}")
-    String user_count;
-    @Value("${redis_config.user_size}")
-    Integer size;
     @Value("${redis_config.page_number}")
     String page_number;
     @Value("${redis_config.add_prefix}")
     String add_prefix;
-    @Value("${redis_config.message_prefix}")
-    String message_prefix;
     @Value("${redis_config.friend_prefix}")
     String friend_prefix;
     @Value("${redis_config.accept_prefix}")
     String accept_prefix;
+    @Value("${redis_config.random_user_prefix}")
+    String random_user_prefix;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
-
-    private long get_user_account(){
-        return template.opsForValue().increment(user_count,0);
-    }
 
     @Override
     public String get_page(){
@@ -55,27 +47,23 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
+    public void put_page(long hit){
+        template.opsForValue().set(page_number, String.valueOf(hit));
+        template.expire(page_number,1,TimeUnit.HOURS);
+    }
+
+    @Override
     public boolean put_user(String user, int id) {
         try {
             template.opsForValue().set(user_prefix + id, user);
-            long account = template.opsForValue().increment(user_count, 1);
-            if (account!=0) {
-                template.opsForValue().set(page_number, String.valueOf((account / size)));
-            }
             return true;
         } catch (Exception e) {
-            return false;
-        } finally {
             return false;
         }
     }
 
     @Override
     public boolean delete_user(int id) {
-        long account = template.opsForValue().increment(user_count,-1);
-        if (account!=0){
-            template.opsForValue().set(page_number, String.valueOf(account / size));
-        }
         return template.delete(user_prefix + id);
     }
 
@@ -170,16 +158,16 @@ public class RedisServiceImpl implements RedisService {
         template.delete(dir_prefix + id);
     }
 
-    @Override
-    public List<String> get_random_users(int start) {
-        List<String> users = new ArrayList<>();
-        Integer page = Integer.valueOf(get_page());
-        long account = get_user_account();
-        for (int i = start;i<account;i=i+page){
-            users.add(user_prefix+i);
-        }
-        return template.opsForValue().multiGet(users);
-    }
+//    @Override
+//    public List<String> get_random_users(int start) {
+//        List<String> users = new ArrayList<>();
+//        Integer page = Integer.valueOf(get_page());
+//        long account = get_user_account();
+//        for (int i = start;i<account;i=i+page){
+//            users.add(user_prefix+i);
+//        }
+//        return template.opsForValue().multiGet(users);
+//    }
 
     @Override
     public long put_add_request(Integer send, Integer accept) {
@@ -204,8 +192,6 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public Boolean has_add_request(Integer send, Integer accept){
-        System.out.println(add_prefix+accept);
-        System.out.println(send);
         return template.opsForSet().isMember(add_prefix+accept,String.valueOf(send));
     }
 
@@ -250,6 +236,16 @@ public class RedisServiceImpl implements RedisService {
         return template.opsForSet().members(accept_prefix+accept);
     }
 
+    @Override
+    public String get_random_users(int start) {
+        return template.opsForValue().get(random_user_prefix+start);
+    }
+
+    @Override
+    public void put_random_user(int start,String random_users){
+        template.opsForValue().set(random_user_prefix+start,random_users);
+        template.expire(random_user_prefix+start,1,TimeUnit.MILLISECONDS.HOURS);
+    }
 
 
 //    @Override

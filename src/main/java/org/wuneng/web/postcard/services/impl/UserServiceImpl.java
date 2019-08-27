@@ -58,6 +58,8 @@ public class UserServiceImpl implements UserService {
     String bind_prefix;
     @Value("${token.change.ttlMillis}")
     long change_ttlmillis;
+    @Value("${es.config.size}")
+    int page_size;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -144,14 +146,12 @@ public class UserServiceImpl implements UserService {
             //redis里有就查redis，没有就查mysql之后更新redis
             if (redisService.has_user(id)) {
                 String user = redisService.get_user(id);
-                System.out.println("redis get user" + user);
                 result.setPayload(user);
                 result.setSuccess(true);
                 return result;
             } else {
                 User user = usersMapperService.get_user_all_field(id);
                 if  (user!=null) {
-                    System.out.println("mysql get user");
                     List<String> direction = directionService.get_direcitons(id);
                     user.setDirections((ArrayList<String>) direction);
                     String s = null;
@@ -360,8 +360,8 @@ public class UserServiceImpl implements UserService {
             Claims claims = (Claims) result.getPayload();
             if (claims.getSubject().equals(user_log_in) &&
                     redisService.get_key_by_phone_number(phone_number, bind_prefix).equals(code)) {
-                System.out.println("redis get key" + redisService.get_key_by_phone_number(phone_number, bind_prefix));
-                System.out.println("input code" + code);
+                logger.debug("redis get key" + redisService.get_key_by_phone_number(phone_number, bind_prefix));
+                logger.debug("input code" + code);
                 int i = usersMapperService.update_phone_number(Integer.parseInt(claims.getId()), phone_number);
                 if (i == 1) {
                     filterService.phone_number_put(phone_number);
@@ -412,7 +412,6 @@ public class UserServiceImpl implements UserService {
         User user = null;
         try {
             user = objectMapper.readValue(json, User.class);
-            System.out.println("is deleted:"+user.isIs_deleted());
         } catch (IOException e) {
             logger.error(e.toString());
         }
@@ -428,7 +427,7 @@ public class UserServiceImpl implements UserService {
             }
             jsonObject.put("id", id);
             jsonObject.remove("password");
-            if  (id%2==1) {
+            if  (!user.isIs_deleted()) {
                 redisService.put_user(jsonObject.toString(), id);
             }
             amqpTemplate.convertAndSend(exchange, "es.update.user.log", jsonObject.toString());
@@ -530,13 +529,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String get_random_users(int start){
-        List<String> list = redisService.get_random_users(start);
-        return list.toString();
+        String users = redisService.get_random_users(start);
+        if (users==null){
+            String s = userESSearchService.get_data(start,page_size).toString();
+            redisService.put_random_user(start,s);
+            users = s;
+        }
+        return users;
     }
 
     @Override
     public String get_page(){
         String page = redisService.get_page();
+        if (page==null){
+            long hits = userESSearchService.get_hits();
+            hits = hits /page_size;
+            redisService.put_page(hits);
+            page = String.valueOf(hits);
+        }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("page",page);
         return jsonObject.toString();

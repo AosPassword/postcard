@@ -51,7 +51,7 @@ public class ProfilePhotoServiceImpl implements ProfilePhotoService {
                 return result;
             }
             String old_file_name = file.getOriginalFilename();
-            System.out.println(old_file_name);
+            logger.debug(old_file_name);
             String type = old_file_name.substring(old_file_name.lastIndexOf("."));
             String file_name = UUID.randomUUID().toString().replace("-","")+type;
             File copy = new File(file_path+file_name);
@@ -62,7 +62,7 @@ public class ProfilePhotoServiceImpl implements ProfilePhotoService {
                 jsonObject.put("file_name",file_name);
                 amqpTemplate.convertAndSend(exchange,"mysql.update.user.photo.log",jsonObject.toString());
                 usersMapperService.update_photo(file_name, id);
-                System.out.println("delete cache");
+                logger.debug("delete cache");
                 redisService.delete_user(id);
                 result.setSuccess(true);
                 result.setPayload(copy.getName());

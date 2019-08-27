@@ -24,7 +24,6 @@ public class ElasticSearchListener {
     ),errorHandler = "rabbitListenerErrorHandler")
     public void upsert_user(String message) throws IOException {
         JSONObject jsonObject = new JSONObject(message);
-        System.out.println(jsonObject.toString());
         Integer id = jsonObject.getInt("id");
         userESSearchService.insert_user(jsonObject,id);
     }

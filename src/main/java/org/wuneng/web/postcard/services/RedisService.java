@@ -7,6 +7,8 @@ public interface RedisService {
 
     String get_page();
 
+    void put_page(long hits);
+
     boolean put_user(String user, int id);
 
     boolean delete_user(int id);
@@ -35,8 +37,6 @@ public interface RedisService {
 
     void delete_children_directions(int id);
 
-    List<String> get_random_users(int start);
-
     long put_add_request(Integer send, Integer accept);
 
     Long delete_add_request(Integer send, Integer accept);
@@ -63,4 +63,7 @@ public interface RedisService {
 
     Set<String> get_accept_response(Integer accept);
 
+    String get_random_users(int start);
+
+    void put_random_user(int start, String random_users);
 }

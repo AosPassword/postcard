@@ -4,6 +4,8 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,8 @@ public class RequestTimesAop {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     //切面范围
     @Pointcut("execution(public * org.wuneng.web.postcard.controllers..*.*(..))")
     public void WebPointCut() {
@@ -39,7 +43,7 @@ public class RequestTimesAop {
             stringRedisTemplate.expire(key, times.time(), TimeUnit.MILLISECONDS);
         }
         if (count > times.count()) {
-            System.out.println("until->"+times.count());
+            logger.debug("until->"+times.count());
             HttpServletResponse response = attributes.getResponse();
             response.setStatus(403);
         }

@@ -1,7 +1,5 @@
 package org.wuneng.web.postcard.services.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.logging.log4j.message.ObjectArrayMessage;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -12,6 +10,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,9 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.jackson.JsonObjectDeserializer;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 import org.wuneng.web.postcard.services.UserESSearchService;
 
 import java.io.IOException;
@@ -39,6 +36,8 @@ public class UserESSearchServiceImpl implements UserESSearchService {
     @Autowired
     ActionListener<UpdateResponse> updatelistener;
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Override
     public JSONArray get_user_by_keyword(Object keyword, String[] fields, int from, int size) {
         SearchRequest request = new SearchRequest();
@@ -47,25 +46,17 @@ public class UserESSearchServiceImpl implements UserESSearchService {
         boolQueryBuilder.filter(QueryBuilders.termQuery("is_deleted", false));
 
         MultiMatchQueryBuilder match = QueryBuilders.multiMatchQuery(keyword, fields);
-        JSONArray jsonArray = null;
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
-        searchSourceBuilder.query(match).from(from).size(size);
+        searchSourceBuilder.query(match).from(from).size(size).query(boolQueryBuilder);
         request.source(searchSourceBuilder);
-
         SearchResponse response = null;
         try {
             response = restHighLevelClient.search(request, requestOptions);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
-        if (response!=null) {
-            SearchHit[] hits = response.getHits().getHits();
-            jsonArray = new JSONArray();
-            for (SearchHit hit : hits) {
-                jsonArray.put(new JSONObject(hit.getSourceAsString()));
-            }
-        }
+        JSONArray jsonArray = fill_array(response);
         return jsonArray;
     }
 
@@ -82,16 +73,71 @@ public class UserESSearchServiceImpl implements UserESSearchService {
         return "insert user not error";
     }
 
+    @Override
+    public long get_hits(){
+        SearchRequest request = new SearchRequest();
+        request.indices(index);
+        BoolQueryBuilder boolQueryBuilder =QueryBuilders.boolQuery();
+        boolQueryBuilder.filter(QueryBuilders.termQuery("is_deleted", false));
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQueryBuilder);
+        request.source(searchSourceBuilder);
+        SearchResponse response = null;
+        try {
+            response = restHighLevelClient.search(request, requestOptions);
+        } catch (IOException e) {
+            logger.error(e.toString());
+        }
+        if (response!=null) {
+            SearchHits hits = response.getHits();
+            return hits.getTotalHits().value;
+        }
+        return 0;
+    }
+
+    @Override
+    public JSONArray get_data(int start, int page){
+        SearchRequest request = new SearchRequest();
+        request.indices(index);
+        BoolQueryBuilder boolQueryBuilder =QueryBuilders.boolQuery();
+        boolQueryBuilder.filter(QueryBuilders.termQuery("is_deleted", false));
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQueryBuilder).from(start*page).size(page);
+        request.source(searchSourceBuilder);
+        SearchResponse response = null;
+        try {
+            response = restHighLevelClient.search(request, requestOptions);
+        } catch (IOException e) {
+            logger.error(e.toString());
+        }
+        JSONArray jsonArray = fill_array(response);
+        return jsonArray;
+    }
+
+
+    private JSONArray fill_array(SearchResponse response){
+        JSONArray jsonArray = null;
+        if (response!=null) {
+            SearchHit[] hits = response.getHits().getHits();
+            jsonArray = new JSONArray();
+            for (SearchHit hit : hits) {
+                jsonArray.put(new JSONObject(hit.getSourceAsString()));
+            }
+        }else {
+            return null;
+        }
+        return jsonArray;
+    }
 //    @Override
 //    public String update_user_field(String field, JSONObject object) throws IOException {
 //        int user_id = object.getInt("user_id");
-//        System.out.println(object);
+//        logger.debug(object);
 //        Object target = object.get(field);
 //        if (user_id==0){
 //            return "es error:[insert user direction] not get user's id";
 //        }
 //        UpdateRequest request = new UpdateRequest(index,String.valueOf(user_id));
-//        System.out.println("target:"+target);
+//        logger.debug("target:"+target);
 //        request.doc(field,target);
 //
 //        restHighLevelClient.update(request,requestOptions);
@@ -105,7 +151,6 @@ public class UserESSearchServiceImpl implements UserESSearchService {
             while (iterator.hasNext()) {
                 String key = iterator.next();
                 String value = filters.optString(key);
-                System.out.println("key:" + key + "\tvalue:" + value);
                 builder.filter(QueryBuilders.termQuery(key, value));
             }
             return builder;

@@ -31,9 +31,9 @@ public class MyCommandLineRunner implements CommandLineRunner {
         objectMapper.disableDefaultTyping();
         JSONObject jsonfile = null;
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("is_deleted",true);
         jsonObject.put("password","123456");
         jsonObject.put("in_school",true);
+        jsonObject.put("is_deleted",false);
         String file_path = "D:\\data\\cqupt-spider\\studentInfo";
         FileReader fileReader = null;
         BufferedReader bufferedReader = null;

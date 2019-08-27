@@ -85,7 +85,6 @@ public class UserController {
         if (result.isSuccess()) {
             Claims claims = (Claims) result.getPayload();
             String id = claims.getId();
-            System.out.println(id);
             result = userService.get_user_all_field(Integer.parseInt(claims.getId()));
             return (String) result.getPayload();
         }
