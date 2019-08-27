@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
+import org.wuneng.web.postcard.beans.ChangePasswordBean;
 import org.wuneng.web.postcard.beans.CheckResult;
 import org.wuneng.web.postcard.beans.Login;
 import org.wuneng.web.postcard.beans.User;
@@ -39,7 +40,7 @@ public class UsersMapperServiceImpl implements UsersMapperService {
     }
 
     @Override
-    public Integer change_password(int parseInt, String password,String slat) {
+    public Integer change_password(int parseInt, String password,byte[] slat) {
         return userMapper.change_password(parseInt,password,slat);
     }
 
@@ -49,7 +50,7 @@ public class UsersMapperServiceImpl implements UsersMapperService {
     }
 
     @Override
-    public String get_salt_by_id(Integer id) {
+    public byte[] get_salt_by_id(Integer id) {
         return userMapper.get_slat_by_id(id);
     }
 
@@ -59,7 +60,7 @@ public class UsersMapperServiceImpl implements UsersMapperService {
     }
 
     @Override
-    public Integer change_password_by_phone(String phone_number, String new_password, String slat) {
+    public Integer change_password_by_phone(String phone_number, String new_password, byte[] slat) {
         return userMapper.change_password_by_phone_number(phone_number,new_password,slat);
     }
 
@@ -77,6 +78,11 @@ public class UsersMapperServiceImpl implements UsersMapperService {
     @Override
     public Integer log_in(Integer id) {
         return userMapper.log_in(id);
+    }
+
+    @Override
+    public ChangePasswordBean get_change_bean(int parseInt) {
+        return userMapper.get_change_bean(parseInt);
     }
 
 

@@ -18,6 +18,8 @@ import org.wuneng.web.postcard.beans.User;
 import org.wuneng.web.postcard.services.ProfilePhotoService;
 import org.wuneng.web.postcard.services.UserService;
 
+import java.util.List;
+
 @RestController
 public class UserController {
     @Autowired
@@ -124,7 +126,6 @@ public class UserController {
         if (result.isSuccess()) {
             Claims claims = (Claims) result.getPayload();
             if (claims.getSubject().equals(user_log_in)) {
-                logger.debug("token true");
                 result = userService.change_password(password, Integer.parseInt(claims.getId()), old_password);
             }
         }
@@ -220,6 +221,11 @@ public class UserController {
         return userService.add_directoin(token,jsonArray);
     }
 
+    @RequestTimes
+    @PostMapping(value = "/user/get_friend")
+    public String get_friends(@RequestHeader("token")String token){
+        return userService.get_friends(token);
+    }
 
 
 }

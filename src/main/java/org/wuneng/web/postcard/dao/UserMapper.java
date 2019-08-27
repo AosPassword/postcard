@@ -1,6 +1,7 @@
 package org.wuneng.web.postcard.dao;
 
 import org.apache.ibatis.annotations.*;
+import org.wuneng.web.postcard.beans.ChangePasswordBean;
 import org.wuneng.web.postcard.beans.Login;
 import org.wuneng.web.postcard.beans.User;
 
@@ -39,25 +40,28 @@ public interface UserMapper {
     public Integer update_user(User user);
 
     @Update("UPDATE users set password = #{password},slat = #{slat} where id = #{id}")
-    Integer change_password(@Param("id") int parseInt,@Param("password") String password,@Param("slat") String slat);
+    Integer change_password(@Param("id") int parseInt,@Param("password") String password,@Param("slat") byte[] slat);
 
     @Select("select stu_id from users where phone_number = #{phone_number} limit 1")
     String get_stu_id_by_phone_number(@Param("phone_number")long phone_number);
 
-    @Select("select slat from users where id = #{id}")
-    String get_slat_by_id(@Param("id") Integer id);
+    @Select("select slat from users where id = #{id} limit 1")
+    byte[] get_slat_by_id(@Param("id") Integer id);
 
-    @Select("select password from users where id = #{id}")
+    @Select("select password from users where id = #{id} limit 1")
     String get_password_by_id(@Param("id") Integer parseInt);
 
     @Update("update users set password = #{password},slat = #{slat} where phone_number = #{phone_number}")
     Integer change_password_by_phone_number(@Param("phone_number") String phone_number,
                                             @Param("password") String new_password,
-                                            @Param("slat") String slat);
+                                            @Param("slat") byte[] slat);
 
     @Update("update users set phone_number = #{phone_number} where id = #{id}")
     Integer update_user_number(@Param("id") int parseInt,@Param("phone_number") long phone_number);
 
     @Update("update users set is_deleted = 1 where id = #{id}")
     Integer log_in(@Param("id") Integer id);
+
+    @Select("select password,slat from users where id = #{id} limit 1")
+    ChangePasswordBean get_change_bean(@Param("id") int parseInt);
 }

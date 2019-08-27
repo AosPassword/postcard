@@ -219,14 +219,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public CheckResult change_password(String password, int parseInt, String old_password) {
         CheckResult result = new CheckResult();
-        String slat = usersMapperService.get_salt_by_id(parseInt);
-        String slat_old_password = slatService.getSecurePassword(old_password, slat);
-        String mysql_old_password = usersMapperService.get_password_by_id(parseInt);
+        ChangePasswordBean bean = usersMapperService.get_change_bean(parseInt);
+        String slat_old_password = slatService.getSecurePassword(password, bean.getSlat());
         logger.debug(slat_old_password);
-        logger.debug(mysql_old_password);
-        if (!mysql_old_password.isEmpty()) {
-            if (mysql_old_password.equals(slat_old_password)) {
-                String new_salt = slatService.getSalt();
+        logger.debug(bean.getPassword());
+        if (!bean.getPassword().isEmpty()) {
+            if (bean.getPassword().equals(slat_old_password)) {
+                byte[] new_salt = slatService.getSalt();
                 String new_password = slatService.getSecurePassword(password, new_salt);
                 int i = usersMapperService.change_password(parseInt, new_password, new_salt);
                 if (i != 1) {
@@ -333,7 +332,7 @@ public class UserServiceImpl implements UserService {
             Claims claims = (Claims) result.getPayload();
             if (claims.getSubject().equals(change_password)) {
                 String phone_number = claims.getId();
-                String slat = slatService.getSalt();
+                byte[] slat = slatService.getSalt();
                 String new_password = slatService.getSecurePassword(password, slat);
                 int i = usersMapperService.change_password_by_phone(phone_number, new_password, slat);
                 if (i == 1) {
@@ -421,9 +420,6 @@ public class UserServiceImpl implements UserService {
         if (user != null) {
             user.setSlat(slatService.getSalt());
             user.setPassword(slatService.getSecurePassword(user.getPassword(), user.getSlat()));
-            if (user.getProfile_photo() == null) {
-                user.setProfile_photo("password.jpg");
-            }
             int id = usersMapperService.update_insert(user);
             filterService.stu_id_put(user.getStu_id());
             filterService.id_put(id);
@@ -432,7 +428,9 @@ public class UserServiceImpl implements UserService {
             }
             jsonObject.put("id", id);
             jsonObject.remove("password");
-            redisService.put_user(jsonObject.toString(), id);
+            if  (id%2==1) {
+                redisService.put_user(jsonObject.toString(), id);
+            }
             amqpTemplate.convertAndSend(exchange, "es.update.user.log", jsonObject.toString());
             result.setSuccess(true);
         }
@@ -477,7 +475,7 @@ public class UserServiceImpl implements UserService {
             return objectMapper.writeValueAsString(result);
         } catch (JsonProcessingException e) {
             logger.error(e.toString());
-            return "{success:false}";
+            return Constant.FALSE;
         }
     }
 
@@ -551,9 +549,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CheckResult get_friends(int id) throws IOException {
-        return friendService.get_friends_ids(id);
+    public String get_friends(String token)  {
+        CheckResult result = JWTUtil.validateJWT(token);
+        if (result.isSuccess()){
+            Claims claims = (Claims) result.getPayload();
+            Integer id = Integer.parseInt(claims.getId());
+            result = friendService.get_friends_ids(id);
+            try {
+                return objectMapper.writeValueAsString(result);
+            } catch (JsonProcessingException e) {
+                logger.error(e.toString());
+            }
+        }
+        return Constant.FALSE;
     }
-
-
 }

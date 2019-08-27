@@ -50,5 +50,5 @@ public interface UserService {
 
     boolean add_friend(Integer send_user_id, Integer accept_user_id);
 
-    CheckResult get_friends(int id) throws IOException;
+    String get_friends(String token);
 }

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Set;
 
 public interface FriendService {
-    CheckResult get_friends_ids(Integer id) throws IOException;
+    CheckResult get_friends_ids(Integer id);
 
     boolean send_add_request(Integer send, Integer accept);
 

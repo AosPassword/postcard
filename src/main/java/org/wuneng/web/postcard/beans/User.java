@@ -23,13 +23,13 @@ public class User {
     private boolean is_deleted;
     private Set<Integer> friends;
     private long phone_number;
-    private String slat;
+    private byte[] slat;
     private String profile_photo;
     private String company;
     private String job;
 
 
-    public User(int id, String stu_id, String password, String name, boolean is_man, boolean in_school, int graduation_year, String major_name, ArrayList<String> directions, long qq_account, String wechat_account, String email, String city, String slogan, boolean is_deleted, Set<Integer> friends, long phone_number, String slat, String profile_photo, String company, String job) {
+    public User(int id, String stu_id, String password, String name, boolean is_man, boolean in_school, int graduation_year, String major_name, ArrayList<String> directions, long qq_account, String wechat_account, String email, String city, String slogan, boolean is_deleted, Set<Integer> friends, long phone_number, byte[] slat, String profile_photo, String company, String job) {
         this.id = id;
         this.stu_id = stu_id;
         this.password = password;
@@ -219,11 +219,11 @@ public class User {
         this.directions = directions;
     }
 
-    public String getSlat() {
+    public byte[] getSlat() {
         return slat;
     }
 
-    public void setSlat(String slat) {
+    public void setSlat(byte[] slat) {
         this.slat = slat;
     }
 
@@ -247,7 +247,7 @@ public class User {
                 ", is_deleted=" + is_deleted +
                 ", friends=" + friends +
                 ", phone_number=" + phone_number +
-                ", slat='" + slat + '\'' +
+                ", slat='" + new String(slat) + '\'' +
                 ", profile_photo='" + profile_photo + '\'' +
                 ", company='" + company + '\'' +
                 ", job='" + job + '\'' +

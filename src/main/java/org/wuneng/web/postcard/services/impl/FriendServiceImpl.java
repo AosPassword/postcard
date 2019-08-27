@@ -29,6 +29,7 @@ public class FriendServiceImpl implements FriendService {
     RedisService redisService;
     @Autowired
     ObjectMapper objectMapper;
+
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override

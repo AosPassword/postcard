@@ -43,6 +43,9 @@ public class UserESSearchServiceImpl implements UserESSearchService {
     public JSONArray get_user_by_keyword(Object keyword, String[] fields, int from, int size) {
         SearchRequest request = new SearchRequest();
         request.indices(index);
+        BoolQueryBuilder boolQueryBuilder =QueryBuilders.boolQuery();
+        boolQueryBuilder.filter(QueryBuilders.termQuery("is_deleted", false));
+
         MultiMatchQueryBuilder match = QueryBuilders.multiMatchQuery(keyword, fields);
         JSONArray jsonArray = null;
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();

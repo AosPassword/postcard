@@ -20,13 +20,11 @@ public class SlatServiceImpl implements SlatService {
     private String provider;
     @Value("${salt.config.encode}")
     private String encode;
-    @Value("${salt.config.error_slat}")
-    private String error_slat;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public String getSalt(){
+    public byte[] getSalt(){
         SecureRandom sr = null;
         byte[] salt = new byte[20];
 
@@ -39,26 +37,25 @@ public class SlatServiceImpl implements SlatService {
         }
         if (sr!=null) {
             sr.nextBytes(salt);
-            return salt.toString().substring(3);
+            return salt;
         }
-        return error_slat;
+        return null;
     }
 
     @Override
-    public String getSecurePassword(String passwordToHash, String salt)
+    public String getSecurePassword(String passwordToHash, byte[] salt)
     {
         String generatedPassword = null;
         try {
             // Create MessageDigest instance for MD5
             MessageDigest md = MessageDigest.getInstance(encode);
             //Add password bytes to digest
-            salt += "[B@";
-            md.update(salt.getBytes());
+            md.update(salt);
             //Get the hash's bytes
             byte[] bytes = md.digest(passwordToHash.getBytes());
             //This bytes[] has bytes in decimal format;
             //Convert it to hexadecimal format
-            StringBuilder sb = new StringBuilder();
+            StringBuffer sb = new StringBuffer();
             for(int i=0; i< bytes.length ;i++)
             {
                 sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));

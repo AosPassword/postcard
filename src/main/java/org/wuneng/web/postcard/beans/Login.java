@@ -3,7 +3,7 @@ package org.wuneng.web.postcard.beans;
 public class Login {
     private Integer id;
     private String  password;
-    private String  slat;
+    private byte[]  slat;
     private boolean is_deleted;
     private boolean in_school;
     private Integer graduation_year;
@@ -24,11 +24,11 @@ public class Login {
         this.graduation_year = graduation_year;
     }
 
-    public String getSlat() {
+    public byte[] getSlat() {
         return slat;
     }
 
-    public void setSlat(String slat) {
+    public void setSlat(byte[] slat) {
         this.slat = slat;
     }
 

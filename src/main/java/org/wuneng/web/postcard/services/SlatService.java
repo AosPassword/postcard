@@ -1,7 +1,7 @@
 package org.wuneng.web.postcard.services;
 
 public interface SlatService {
-    String getSalt();
+    byte[] getSalt();
 
-    String getSecurePassword(String password, String salt);
+    String getSecurePassword(String password, byte[] salt);
 }
