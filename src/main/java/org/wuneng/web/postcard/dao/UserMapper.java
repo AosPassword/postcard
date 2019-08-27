@@ -9,10 +9,10 @@ import org.wuneng.web.postcard.beans.User;
 public interface UserMapper {
     @Insert("INSERT INTO `postcard`.`users`(`stu_id`, `password`, `name`, `is_man`, `in_school`, `graduation_year`, `major_name`,\n" +
             " `qq_account`, `wechat_account`, `email`, `city`, `slogan`, `profile_photo`,`phone_number`,`slat`," +
-            "`company`,`job`)" +
+            "`company`,`job`,`is_deleted`)" +
             " VALUES (#{stu_id}, #{password}, #{name},#{is_man},#{in_school},#{graduation_year},#{major_name}," +
             " #{qq_account}, #{wechat_account}, #{email},#{city},#{slogan}, #{profile_photo}," +
-            "#{phone_number},#{slat},#{company},#{company})")
+            "#{phone_number},#{slat},#{company},#{company},#{is_deleted})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     public void userInsert(User user);
 

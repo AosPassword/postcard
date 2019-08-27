@@ -2,6 +2,8 @@ package org.wuneng.web.postcard.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.wuneng.web.postcard.beans.CheckResult;
+import org.wuneng.web.postcard.beans.FriendVessel;
+import org.wuneng.web.postcard.beans.MessageVessel;
 
 import java.io.IOException;
 import java.util.Set;
@@ -16,4 +18,12 @@ public interface FriendService {
     boolean has_send_request(int sendUserId, int acceptUserId);
 
     Set<Integer> get_send_request(int id);
+
+    int refuse(FriendVessel friendVessel);
+
+    void beRefused(Integer id);
+
+    Set<MessageVessel> get_refuse(int send_user_id);
+
+    Integer delete_friend(int send_user_id, int accept_user_id);
 }

@@ -7,10 +7,10 @@ import org.wuneng.web.postcard.beans.PostCardMessage;
 
 public class MessageFactory {
 
-    public static PostCardMessage.Message getMessage(String subject, ByteString payload,
-                                                     Integer accept_user_id, Timestamp timestamp){
+    public static PostCardMessage.Message getMessage(String subject, Integer send_user_id,
+                                                     Integer accept_user_id, String id){
         PostCardMessage.Message.Builder builder = PostCardMessage.Message.newBuilder();
-        builder.setSubject(subject).setPayload(payload).setAcceptUserId(accept_user_id).setTime(timestamp);
+        builder.setSubject(subject).setSendUserId(send_user_id).setAcceptUserId(accept_user_id).setId(id);
         return builder.build();
     }
 

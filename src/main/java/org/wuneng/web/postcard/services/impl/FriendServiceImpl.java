@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.wuneng.web.postcard.beans.CheckResult;
+import org.wuneng.web.postcard.beans.FriendVessel;
+import org.wuneng.web.postcard.beans.MessageVessel;
 import org.wuneng.web.postcard.dao.FriendsMapper;
 import org.wuneng.web.postcard.services.FriendService;
 import org.wuneng.web.postcard.services.RedisService;
@@ -110,4 +112,26 @@ public class FriendServiceImpl implements FriendService {
         }
         return  ids;
     }
+
+    @Override
+    public int refuse(FriendVessel friendVessel) {
+        return friendsMapper.refuse(friendVessel);
+    }
+
+    @Override
+    public void beRefused(Integer id) {
+        friendsMapper.refused(id);
+    }
+
+    @Override
+    public Set<MessageVessel> get_refuse(int send_user_id) {
+        return friendsMapper.get_refuse(send_user_id);
+    }
+
+    @Override
+    public Integer delete_friend(int send_user_id, int accept_user_id){
+        return friendsMapper.delete(send_user_id,accept_user_id);
+    }
+
+
 }

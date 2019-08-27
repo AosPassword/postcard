@@ -1,13 +1,14 @@
 package org.wuneng.web.postcard.handlers;
 
 import com.google.protobuf.ByteString;
-import org.wuneng.web.postcard.beans.PostCardMessage;
+import org.apache.tomcat.util.bcel.Const;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wuneng.web.postcard.beans.*;
 import io.netty.channel.*;
 import io.netty.util.ReferenceCountUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.wuneng.web.postcard.beans.CheckResult;
-import org.wuneng.web.postcard.beans.Constant;
 import org.wuneng.web.postcard.services.FriendService;
 import org.wuneng.web.postcard.services.RedisService;
 import org.wuneng.web.postcard.services.impl.FriendServiceImpl;
@@ -30,6 +31,8 @@ public class AddFriendHandler extends ChannelInboundHandlerAdapter {
 
     private static RedisService redisService;
     private static FriendService friendService;
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
     @PostConstruct
     public void init() {
         friendService = friendServiceImpl;
@@ -110,6 +113,7 @@ public class AddFriendHandler extends ChannelInboundHandlerAdapter {
             int send_user_id = Channel2UserMap.getChannel2UserMap().get(ctx.channel());
             Set<Integer> request = friendService.get_send_request(send_user_id);
             Set<String> response = redisService.get_accept_response(send_user_id);
+            Set<MessageVessel> refuse = friendService.get_refuse(send_user_id);
             if (request != null) {
                 for (Integer s : request) {
                     ctx.writeAndFlush(MessageFactory.getMessage(Constant.ADD_FRIEND_REQUEST, s, send_user_id));
@@ -121,9 +125,28 @@ public class AddFriendHandler extends ChannelInboundHandlerAdapter {
                     redisService.delete_accept_response(Integer.parseInt(s),send_user_id);
                 }
             }
+            if (refuse!=null){
+                for (MessageVessel i : refuse){
+                    ctx.writeAndFlush(MessageFactory.getMessage(Constant.REFUSE,i.getAccept_user_id(),send_user_id,String.valueOf(i.getId())));
+                }
+            }
+        } else if (message.getSubject().equals(Constant.REFUSE)){
+            FriendVessel friendVessel = new FriendVessel(message.getSendUserId(),message.getAcceptUserId());
+            int i = friendService.refuse(friendVessel);
+            if (i == 1){
+                ctx.writeAndFlush(MessageFactory.getMessage(Constant.SUCCESS,message.getId()));
+                Channel channel = User2ChannelMap.getUser2channelMap().get(message.getAcceptUserId());
+                if (channel!=null){
+                    channel.writeAndFlush(MessageFactory.getMessage(message,friendVessel.getId()));
+                }
+            }
+            ReferenceCountUtil.release(msg);
+        } else if (message.getSubject().equals(Constant.BEREFUSEED)){
+            logger.debug(message.getId());
+            friendService.beRefused(Integer.parseInt(message.getId()));
+        }else {
+            //传递到下一个handler
+            super.channelRead(ctx, msg);
         }
-        //传递到下一个handler
-        super.channelRead(ctx, msg);
     }
-
 }

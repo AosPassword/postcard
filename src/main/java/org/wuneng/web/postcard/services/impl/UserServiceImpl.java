@@ -563,4 +563,23 @@ public class UserServiceImpl implements UserService {
         }
         return Constant.FALSE;
     }
+
+    @Override
+    public String delete_friend(String token, Integer id) {
+        CheckResult checkResult = JWTUtil.validateJWT(token);
+        if (checkResult.isSuccess()){
+            checkResult.setPayload(null);
+            Claims claims = (Claims) checkResult.getPayload();
+            Integer send_id =Integer.parseInt(claims.getId());
+            int i = friendService.delete_friend(send_id,id);
+            if (i >0){
+                try {
+                    return objectMapper.writeValueAsString(checkResult);
+                } catch (JsonProcessingException e) {
+                    logger.debug(e.toString());
+                }
+            }
+        }
+        return Constant.FALSE;
+    }
 }

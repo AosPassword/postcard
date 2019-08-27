@@ -227,5 +227,10 @@ public class UserController {
         return userService.get_friends(token);
     }
 
-
+    @RequestTimes
+    @PostMapping(value = "/user/delete_friend")
+    public String delete_friend(@RequestHeader("token") String token,
+                                @RequestParam("friend_id")Integer id){
+        return userService.delete_friend(token,id);
+    }
 }

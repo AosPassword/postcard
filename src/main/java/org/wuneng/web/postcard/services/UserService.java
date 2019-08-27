@@ -51,4 +51,6 @@ public interface UserService {
     boolean add_friend(Integer send_user_id, Integer accept_user_id);
 
     String get_friends(String token);
+
+    String delete_friend(String token, Integer id);
 }
