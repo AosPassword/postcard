@@ -53,4 +53,6 @@ public interface UserService {
     String get_friends(String token);
 
     String delete_friend(String token, Integer id);
+
+    String get_friends_all_fields(String token);
 }

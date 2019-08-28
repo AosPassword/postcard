@@ -20,7 +20,7 @@ public class ErrorHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error(cause.toString());
+        logger.error(cause.getStackTrace().toString());
         ctx.channel().closeFuture();
     }
 }

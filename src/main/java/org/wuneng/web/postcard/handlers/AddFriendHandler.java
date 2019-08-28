@@ -44,44 +44,46 @@ public class AddFriendHandler extends ChannelInboundHandlerAdapter {
         PostCardMessage.Message message = (PostCardMessage.Message) msg;
         if (message.getSubject().equals(Constant.ADD_FRIEND_REQUEST)) {
             PostCardMessage.Message.Builder result = PostCardMessage.Message.newBuilder();
-            boolean has_friend = false;
-            CheckResult friends_ids = friendService.get_friends_ids(message.getSendUserId());
-            if (friends_ids.isSuccess()) {
-                Set<Integer> ids = (Set<Integer>) friends_ids.getPayload();
-                has_friend = ids.contains(message.getAcceptUserId());
-            }
-
-            //先判断双方是不是好友，是好友直接返回错误
-            if (!has_friend) {
-                boolean is_exist = friendService.has_send_request(message.getSendUserId(), message.getAcceptUserId());
-                //查询你是否已经发送过请求信息
-                if (!is_exist) {
-                    boolean has_send_request = friendService.has_send_request(message.getAcceptUserId(), message.getSendUserId());
-                    //返回对方是否已经请求添加发送者为好友
-                    if (!has_send_request) {
-                        friendService.send_add_request(message.getSendUserId(),message.getAcceptUserId());
-                        result.setSubject(Constant.SUCCESS);
-                        result.setId(message.getId());
-                        ctx.writeAndFlush(result.build());
-                        Channel channel = User2ChannelMap.getUser2channelMap().get(message.getAcceptUserId());
-                        if (channel != null) {
-                            channel.writeAndFlush(message);
+            if (message.getSendUserId()==message.getAcceptUserId()){
+                ReferenceCountUtil.release(msg);
+            }else {
+                boolean has_friend = false;
+                CheckResult friends_ids = friendService.get_friends_ids(message.getSendUserId());
+                if (friends_ids.isSuccess()) {
+                    Set<Integer> ids = (Set<Integer>) friends_ids.getPayload();
+                    has_friend = ids.contains(message.getAcceptUserId());
+                }
+                //先判断双方是不是好友，是好友直接返回错误
+                if (!has_friend) {
+                    boolean is_exist = friendService.has_send_request(message.getSendUserId(), message.getAcceptUserId());
+                    //查询你是否已经发送过请求信息
+                    if (!is_exist) {
+                        boolean has_send_request = friendService.has_send_request(message.getAcceptUserId(), message.getSendUserId());
+                        //返回对方是否已经请求添加发送者为好友
+                        if (!has_send_request) {
+                            friendService.send_add_request(message.getSendUserId(), message.getAcceptUserId());
+                            result.setSubject(Constant.SUCCESS);
+                            result.setId(message.getId());
+                            ctx.writeAndFlush(result.build());
+                            Channel channel = User2ChannelMap.getUser2channelMap().get(message.getAcceptUserId());
+                            if (channel != null) {
+                                channel.writeAndFlush(message);
+                            }
+                        } else {
+                            result.setSubject(Constant.ERROR);
+                            result.setPayload(ByteString.copyFromUtf8(Constant.ACCEPT_USER_HAS_SEND_ADD_REQUEST));
                         }
                     } else {
                         result.setSubject(Constant.ERROR);
-                        result.setPayload(ByteString.copyFromUtf8(Constant.ACCEPT_USER_HAS_SEND_ADD_REQUEST));
+                        result.setPayload(ByteString.copyFromUtf8(Constant.ADD_REQUEST_HAS_BEEN_SEND));
                     }
                 } else {
                     result.setSubject(Constant.ERROR);
-                    result.setPayload(ByteString.copyFromUtf8(Constant.ADD_REQUEST_HAS_BEEN_SEND));
+                    result.setPayload(ByteString.copyFromUtf8(Constant.HAVE_BEEN_FRIENDS_WITH_ACCEPT_USER));
                 }
-            } else {
-                result.setSubject(Constant.ERROR);
-                result.setPayload(ByteString.copyFromUtf8(Constant.HAVE_BEEN_FRIENDS_WITH_ACCEPT_USER));
+                ctx.channel().writeAndFlush(result.build());
+                ReferenceCountUtil.release(msg);
             }
-            ctx.channel().writeAndFlush(result.build());
-            ReferenceCountUtil.release(msg);
-
 
         } else if (message.getSubject().equals(Constant.ACCEPT_FRIEND_RESPONSE)) {
             PostCardMessage.Message.Builder result = PostCardMessage.Message.newBuilder();

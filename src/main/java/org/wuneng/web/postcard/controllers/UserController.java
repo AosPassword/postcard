@@ -232,4 +232,10 @@ public class UserController {
                                 @RequestParam("friend_id")Integer id){
         return userService.delete_friend(token,id);
     }
+
+    @RequestTimes
+    @PostMapping(value = "/user/get_friend_all_fields")
+    public String get_friends_all_fields(@RequestHeader("token") String token){
+        return userService.get_friends_all_fields("token");
+    }
 }

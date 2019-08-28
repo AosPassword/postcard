@@ -98,10 +98,11 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public Set<Integer> get_send_request(int id) {
-        Set<String> accept_responses = redisService.get_add_request(id);
+        Set<String> send_request = redisService.get_add_request(id);
         Set<Integer> ids;
-        if (!accept_responses.isEmpty()){
-           ids = accept_responses.stream().map(s ->Integer.parseInt(s)).collect(Collectors.toSet());
+        if (!send_request.isEmpty()){
+            logger.debug(send_request.toString());
+            ids = send_request.stream().map(s ->Integer.parseInt(s)).collect(Collectors.toSet());
         }else {
             ids = friendsMapper.get_send_request(id);
             if (!ids.isEmpty()){

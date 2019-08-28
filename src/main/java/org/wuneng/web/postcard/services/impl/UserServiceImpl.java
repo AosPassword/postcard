@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -591,5 +592,25 @@ public class UserServiceImpl implements UserService {
             }
         }
         return Constant.FALSE;
+    }
+
+    @Override
+    public String get_friends_all_fields(String token) {
+        CheckResult result = JWTUtil.validateJWT(token);
+        if (result.isSuccess()) {
+            Claims claims = (Claims) result.getPayload();
+            Integer id = Integer.parseInt(claims.getId());
+            result = friendService.get_friends_ids(id);
+            JSONArray jsonArray = new JSONArray();
+            if (result.isSuccess()) {
+                Set<Integer> set = (Set<Integer>) result.getPayload();
+                for (Integer i : set) {
+                    jsonArray.put(get_user_all_field(i));
+                }
+            }
+            return jsonArray.toString();
+        } else {
+            return null;
+        }
     }
 }

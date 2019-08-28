@@ -18,6 +18,7 @@ import org.wuneng.web.postcard.utils.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.Iterator;
 import java.util.Set;
 
 @Component
@@ -66,14 +67,16 @@ public class LogHandler extends ChannelInboundHandlerAdapter {
                         PostCardMessage.Message log_in = MessageFactory.getMessage(Constant.LOG_IN, id);
                         //向用户好友发送用户已经登陆的信息 并且 给用户发送好友在线状态
                         Channel channel;
-                        for (Integer i : friends) {
-                            channel = User2ChannelMap.getUser2channelMap().get(i);
+                        Iterator<Integer> integerIterator = friends.iterator();
+                        while (integerIterator.hasNext()){
+                            Integer iterator = integerIterator.next();
+                            channel = User2ChannelMap.getUser2channelMap().get(iterator);
                             if (channel != null) {
-                                logger.debug("send log in message to user ->" + i);
+                                logger.debug("send log in message to user ->" + iterator);
                                 channel.writeAndFlush(log_in);
                             } else {
-                                logger.debug("friend user ->" + i + " is not in channel map");
-                                friends.remove(i);
+                                logger.debug("friend user ->" + iterator + " is not in channel map");
+                                integerIterator.remove();
                             }
                         }
                         logger.debug("user:" + id + " friends who is in map are : " + friends.toString());
