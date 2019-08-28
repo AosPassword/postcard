@@ -43,7 +43,7 @@ public class LogHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         logger.debug("LogHandler channelRead");
         PostCardMessage.Message message = (PostCardMessage.Message) msg;
-        if (message!=null){
+        if (message==null){
             ReferenceCountUtil.release(msg);
         }else {
             //判断主题是否是登陆

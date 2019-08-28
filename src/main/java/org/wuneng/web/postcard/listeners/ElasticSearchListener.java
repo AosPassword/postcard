@@ -27,6 +27,4 @@ public class ElasticSearchListener {
         Integer id = jsonObject.getInt("id");
         userESSearchService.insert_user(jsonObject,id);
     }
-
-
 }

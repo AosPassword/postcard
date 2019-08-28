@@ -46,7 +46,6 @@ public class AddFriendHandler extends ChannelInboundHandlerAdapter {
             PostCardMessage.Message.Builder result = PostCardMessage.Message.newBuilder();
             boolean has_friend = false;
             CheckResult friends_ids = friendService.get_friends_ids(message.getSendUserId());
-
             if (friends_ids.isSuccess()) {
                 Set<Integer> ids = (Set<Integer>) friends_ids.getPayload();
                 has_friend = ids.contains(message.getAcceptUserId());
