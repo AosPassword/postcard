@@ -15,7 +15,6 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 @Configuration
 public class JSONConfig {
-
     @Primary
     @ConditionalOnMissingBean(ObjectMapper.class)
     @Bean
@@ -28,5 +27,4 @@ public class JSONConfig {
         mapper.disableDefaultTyping();
         return mapper;
     }
-
 }

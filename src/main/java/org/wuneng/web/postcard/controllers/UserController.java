@@ -18,7 +18,6 @@ import org.wuneng.web.postcard.beans.User;
 import org.wuneng.web.postcard.services.ProfilePhotoService;
 import org.wuneng.web.postcard.services.UserService;
 
-import java.util.List;
 
 @RestController
 public class UserController {
@@ -236,6 +235,6 @@ public class UserController {
     @RequestTimes
     @PostMapping(value = "/user/get_friend_all_fields")
     public String get_friends_all_fields(@RequestHeader("token") String token){
-        return userService.get_friends_all_fields("token");
+        return userService.get_friends_all_fields(token);
     }
 }

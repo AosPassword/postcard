@@ -17,10 +17,7 @@ import org.wuneng.web.postcard.utils.DateUtil;
 import org.wuneng.web.postcard.utils.JWTUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -147,6 +144,7 @@ public class UserServiceImpl implements UserService {
             //redis里有就查redis，没有就查mysql之后更新redis
             if (redisService.has_user(id)) {
                 String user = redisService.get_user(id);
+                logger.debug("redis get user"+user.toString());
                 result.setPayload(user);
                 result.setSuccess(true);
                 return result;
@@ -221,7 +219,7 @@ public class UserServiceImpl implements UserService {
     public CheckResult change_password(String password, int parseInt, String old_password) {
         CheckResult result = new CheckResult();
         ChangePasswordBean bean = usersMapperService.get_change_bean(parseInt);
-        String slat_old_password = slatService.getSecurePassword(password, bean.getSlat());
+        String slat_old_password = slatService.getSecurePassword(old_password, bean.getSlat());
         logger.debug(slat_old_password);
         logger.debug(bean.getPassword());
         if (!bean.getPassword().isEmpty()) {
@@ -428,10 +426,9 @@ public class UserServiceImpl implements UserService {
             }
             jsonObject.put("id", id);
             jsonObject.remove("password");
-            if  (!user.isIs_deleted()) {
-                redisService.put_user(jsonObject.toString(), id);
+            if (!user.isIs_deleted()) {
+                amqpTemplate.convertAndSend(exchange, "es.update.user.log", jsonObject.toString());
             }
-            amqpTemplate.convertAndSend(exchange, "es.update.user.log", jsonObject.toString());
             result.setSuccess(true);
         }
         return result;
@@ -597,18 +594,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public String get_friends_all_fields(String token) {
         CheckResult result = JWTUtil.validateJWT(token);
+        logger.debug("result ->"+result.isSuccess());
         if (result.isSuccess()) {
             Claims claims = (Claims) result.getPayload();
             Integer id = Integer.parseInt(claims.getId());
             result = friendService.get_friends_ids(id);
-            JSONArray jsonArray = new JSONArray();
+            Set<String> strings = new HashSet<>();
             if (result.isSuccess()) {
                 Set<Integer> set = (Set<Integer>) result.getPayload();
                 for (Integer i : set) {
-                    jsonArray.put(get_user_all_field(i));
+                    strings.add((String) get_user_all_field(i).getPayload());
                 }
             }
-            return jsonArray.toString();
+            return strings.toString();
         } else {
             return null;
         }

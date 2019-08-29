@@ -46,7 +46,7 @@ public class UserESSearchServiceImpl implements UserESSearchService {
         boolQueryBuilder.filter(QueryBuilders.termQuery("is_deleted", false));
 
         MultiMatchQueryBuilder match = QueryBuilders.multiMatchQuery(keyword, fields);
-        boolQueryBuilder.should(match);
+        boolQueryBuilder.must(match);
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
