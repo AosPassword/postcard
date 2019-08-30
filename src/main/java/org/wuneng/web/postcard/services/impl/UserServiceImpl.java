@@ -156,6 +156,8 @@ public class UserServiceImpl implements UserService {
                     String s = null;
                     try {
                         s = objectMapper.writeValueAsString(user);
+                        logger.debug("redis put user:"+s);
+
                     } catch (JsonProcessingException e) {
                         logger.error(e.toString());
                     }
@@ -428,6 +430,7 @@ public class UserServiceImpl implements UserService {
             jsonObject.remove("password");
             if (!user.isIs_deleted()) {
                 amqpTemplate.convertAndSend(exchange, "es.update.user.log", jsonObject.toString());
+                logger.debug("es put user -> "+jsonObject.getInt("id"));
             }
             result.setSuccess(true);
         }

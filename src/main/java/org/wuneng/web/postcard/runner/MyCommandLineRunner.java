@@ -34,7 +34,7 @@ public class MyCommandLineRunner implements CommandLineRunner {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("password","123456");
         jsonObject.put("in_school",true);
-        String file_path = "D:\\data\\cqupt-spider\\studentInfo";
+        String file_path = "/usr/postcard/data/studentInfo";
         FileReader fileReader = null;
         BufferedReader bufferedReader = null;
         String s = null;
@@ -55,7 +55,6 @@ public class MyCommandLineRunner implements CommandLineRunner {
                 bufferedReader = new BufferedReader(reader);
                 try {
                     while (!(s = bufferedReader.readLine()).isEmpty()) {
-                        logger.debug("s->"+s);
                         if  (s.contains("{")) {
                             JSONArray jsonArray = new JSONObject(s).getJSONArray("returnData");
                             if  (!jsonArray.isEmpty()) {

@@ -20,6 +20,7 @@ import org.wuneng.web.postcard.services.UserService;
 
 
 @RestController
+@RequestMapping("/postcard/app/")
 public class UserController {
     @Autowired
     ObjectMapper objectMapper ;

@@ -28,7 +28,7 @@ public interface UserMapper {
             "accept_user_id = #{id} and is_accepted = 1 and is_deleted = 0)")
     public User get_friends_all(@Param("id") Integer id);
 
-    @Select("SELECT stu_id,name,is_man,graduation_year,major_name,qq_account," +
+    @Select("SELECT id,stu_id,name,is_man,graduation_year,major_name,qq_account," +
             "wechat_account,email,city,slogan,profile_photo,phone_number,company,job " +
             "FROM users WHERE id = #{id}")
     public User get_user_by_id(@Param("id") Integer id);
