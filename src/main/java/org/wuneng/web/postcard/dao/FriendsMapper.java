@@ -29,7 +29,7 @@ public interface FriendsMapper {
     @Select("SELECT send_user_id FROM user_friend WHERE accept_user_id = #{id} and is_accepted = 0 and is_deleted = 0")
     Set<Integer> get_send_request(@Param("id")int id);
 
-    @Update("UPDATE user_friend set is_refused = 1 WHERE send_user_id = #{accept_user_id} and accept_user_id = #{send_user_id} and is_accepted = 0")
+    @Update("UPDATE user_friend set is_refused = 1 WHERE send_user_id = #{accept_user_id} and accept_user_id = #{send_user_id} and is_accepted = 0 and is_deleted = 0")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     Integer refuse(FriendVessel friendVessel);
 

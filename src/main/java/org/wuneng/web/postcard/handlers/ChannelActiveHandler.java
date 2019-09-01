@@ -11,13 +11,12 @@ import org.wuneng.web.postcard.utils.MessageFactory;
 
 
 public class ChannelActiveHandler extends ChannelInboundHandlerAdapter {
-    private static final PostCardMessage.Message heart = MessageFactory.getHeart();
     private Logger logger = LoggerFactory.getLogger(getClass());
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateHandler){
-            logger.debug(heart.getSubject());
-            ctx.writeAndFlush(heart).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+            logger.debug("userEventTriggered active!");
+            ctx.writeAndFlush(MessageFactory.getHeart()).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
         }else {
             super.userEventTriggered(ctx,evt);
         }

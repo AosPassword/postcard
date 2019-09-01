@@ -45,7 +45,9 @@ public class AddFriendHandler extends ChannelInboundHandlerAdapter {
         if (message.getSubject().equals(Constant.ADD_FRIEND_REQUEST)) {
             PostCardMessage.Message.Builder result = PostCardMessage.Message.newBuilder();
             if (message.getSendUserId()==message.getAcceptUserId()){
-                ctx.writeAndFlush(MessageFactory.getMessage("error",ByteString.copyFromUtf8(Constant.CANT_ADD_YOUR_SELF)));
+                result.setSubject(Constant.ERROR);
+                result.setSubject(Constant.CANT_ADD_YOUR_SELF);
+                ctx.writeAndFlush(result.build());
                 ReferenceCountUtil.release(msg);
             }else {
                 boolean has_friend = false;

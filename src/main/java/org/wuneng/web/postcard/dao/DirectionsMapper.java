@@ -14,7 +14,7 @@ public interface DirectionsMapper {
     @Select("SELECT user_direction.direction_id \n" +
             "FROM user_direction\n" +
             "where\n" +
-            "user_direction.uid = #{id}")
+            "user_direction.uid = #{id} and `is_deleted` = 0")
     public List<Integer> get_direction_id(@Param("id") Integer id);
 
 

@@ -67,6 +67,7 @@ public class UserESSearchServiceImpl implements UserESSearchService {
         if (user_id == 0) {
             return "error";
         }
+        user.put("is_deleted",false);
         UpdateRequest request = new UpdateRequest(index, String.valueOf(user_id));
         request.doc(user.toString(), XContentType.JSON);
         request.docAsUpsert(true);

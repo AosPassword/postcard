@@ -25,7 +25,7 @@ public class NettyRunner implements CommandLineRunner {
 
     @Override
     public void run(String... strings) {
-        InetSocketAddress address = new InetSocketAddress(url, port);
+        InetSocketAddress address = new InetSocketAddress(port);
         ChannelFuture future = nettyService.run(address);
     }
 }

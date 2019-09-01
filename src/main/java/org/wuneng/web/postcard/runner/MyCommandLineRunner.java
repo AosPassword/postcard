@@ -89,7 +89,7 @@ public class MyCommandLineRunner implements CommandLineRunner {
             }else {
                 File[] files = file.listFiles();
                 for (File f : files){
-                    logger.debug(f.getAbsolutePath()+f.getName());
+//                    logger.debug(f.getAbsolutePath()+f.getName());
                     readFile(f.getAbsolutePath(),reader,bufferedReader,jsonfile,jsonObject,s,r);
                 }
             }

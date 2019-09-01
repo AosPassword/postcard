@@ -53,6 +53,8 @@ public class User {
         this.job = job;
     }
 
+
+
     public boolean isIn_school() {
         return in_school;
     }

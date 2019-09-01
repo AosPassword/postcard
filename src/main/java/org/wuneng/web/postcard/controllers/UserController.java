@@ -79,6 +79,13 @@ public class UserController {
     }
 
     @RequestTimes
+    @PostMapping(value = "/log_in_at_first")
+    public String log_in_at_first(@RequestHeader("token")String token){
+        return userService.log_in_at_first(token);
+    }
+
+
+    @RequestTimes
     @RequestMapping(value = "/user/get_user_by_token",method = RequestMethod.POST)
     public String get_user(@RequestHeader("token") String token) throws JsonProcessingException {
         CheckResult result = userService.validateJWT(token);
@@ -182,11 +189,6 @@ public class UserController {
         return objectMapper.writeValueAsString(userService.get_user_by_key(key,from,size));
     }
 
-    @RequestMapping(value = "/add_user")
-    public void add_user(@RequestParam("user") String user){
-        userService.add_user(user);
-    }
-
 
     @RequestTimes
     @PostMapping(value = "/get_large_directions")
@@ -194,7 +196,7 @@ public class UserController {
         return (String) userService.get_large_directions().getPayload();
     }
 
-    @RequestTimes
+    @RequestTimes(count = 60,time = 60)
     @PostMapping(value = "/get_small_directions")
     public String get_small_directions(@RequestParam("direction_id") int direction_id){
         return (String) userService.get_children_direction(direction_id).getPayload();

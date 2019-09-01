@@ -67,6 +67,11 @@ public class UserServiceImpl implements UserService {
         Login user = null;
         if (filterService.stu_id_might_contain(stu_id)) {
             user = usersMapperService.get_id_password(stu_id);
+            try {
+                logger.debug(objectMapper.writeValueAsString(user));
+            } catch (JsonProcessingException e) {
+                logger.debug(e.toString());
+            }
             if (user != null) {
                 if (user.getPassword().equals(slatService.getSecurePassword(password, user.getSlat()))) {
                     LogInResponse response = new LogInResponse();
@@ -74,9 +79,6 @@ public class UserServiceImpl implements UserService {
                     response.setIn_school(user.isIn_school());
                     if (user.isIs_deleted()) {
                         response.setFirst(true);
-                        if (user.getGraduation_year()<=DateUtil.get_year()){
-                            set_log_in(user.getId());
-                        }
                     }else {
                         response.setFirst(false);
                     }
@@ -188,6 +190,12 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public CheckResult update_user(JSONObject jsonObject,int id) {
+        if  (jsonObject.has("is_deleted")){
+            jsonObject.remove("is_deleted");
+        }
+        if  (jsonObject.has("in_school")){
+            jsonObject.remove("in_school");
+        }
         CheckResult result = new CheckResult();
         User user = null;
         try {
@@ -207,6 +215,41 @@ public class UserServiceImpl implements UserService {
         }
         result.setSuccess(false);
         return result;
+    }
+
+    @Override
+    public String log_in_at_first(String token){
+        CheckResult result = JWTUtil.validateJWT(token);
+        JSONObject success = new JSONObject();
+        if (result.isSuccess()){
+            Claims claims = (Claims) result.getPayload();
+            Integer id = Integer.valueOf(claims.getId());
+            CheckResult user = get_user_all_field(id);
+            if (user.isSuccess()){
+                JSONObject jsonObject= new JSONObject((String)user.getPayload());
+                boolean in_school = jsonObject.getBoolean("in_school");
+                if (!in_school){
+                    if ((!jsonObject.getString("company").isEmpty()) &&
+                            (!jsonObject.getString("job").isEmpty()) &&
+                            (!jsonObject.getJSONArray("directions").isEmpty())){
+                        usersMapperService.log_in(id);
+                        redisService.delete_user(id);
+                        jsonObject.put("is_deleted",false);
+                        amqpTemplate.convertAndSend(exchange, "es.update.user.info",jsonObject.toString());
+                        success.put("success",true);
+                        return success.toString();
+                    }else {
+                        return Constant.FALSE;
+                    }
+                }else {
+                    usersMapperService.log_in(id);
+                    amqpTemplate.convertAndSend(exchange, "es.update.user.info",jsonObject.toString());
+                    success.put("success",true);
+                    return success.toString();
+                }
+            }
+        }
+        return Constant.FALSE;
     }
 
     /**
@@ -428,9 +471,8 @@ public class UserServiceImpl implements UserService {
             }
             jsonObject.put("id", id);
             jsonObject.remove("password");
-            if (!user.isIs_deleted()) {
+            if (!jsonObject.getBoolean("is_deleted")) {
                 amqpTemplate.convertAndSend(exchange, "es.update.user.log", jsonObject.toString());
-                logger.debug("es put user -> "+jsonObject.getInt("id"));
             }
             result.setSuccess(true);
         }

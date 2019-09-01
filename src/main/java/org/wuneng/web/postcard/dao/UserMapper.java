@@ -7,12 +7,12 @@ import org.wuneng.web.postcard.beans.User;
 
 @Mapper
 public interface UserMapper {
-    @Insert("INSERT INTO `postcard`.`users`(`stu_id`, `password`, `name`, `is_man`, `in_school`, `graduation_year`, `major_name`,\n" +
+    @Insert("INSERT INTO `postcard`.`users`(`stu_id`, `password`, `name`, `is_man`, `in_school`, `graduation_year`, `major_name`," +
             " `qq_account`, `wechat_account`, `email`, `city`, `slogan`, `profile_photo`,`phone_number`,`slat`," +
             "`company`,`job`,`is_deleted`)" +
             " VALUES (#{stu_id}, #{password}, #{name},#{is_man},#{in_school},#{graduation_year},#{major_name}," +
-            " #{qq_account}, #{wechat_account}, #{email},#{city},#{slogan}, #{profile_photo}," +
-            "#{phone_number},#{slat},#{company},#{company},#{is_deleted})")
+            " #{qq_account}, #{wechat_account},#{email},#{city},#{slogan}, #{profile_photo}," +
+            "#{phone_number},#{slat},#{company},#{job},#{is_deleted})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     public void userInsert(User user);
 
@@ -28,8 +28,9 @@ public interface UserMapper {
             "accept_user_id = #{id} and is_accepted = 1 and is_deleted = 0)")
     public User get_friends_all(@Param("id") Integer id);
 
-    @Select("SELECT id,stu_id,name,is_man,graduation_year,major_name,qq_account," +
-            "wechat_account,email,city,slogan,profile_photo,phone_number,company,job " +
+    @Select("SELECT `id`,`stu_id`,`name`,`is_man`,`graduation_year`,\n" +
+            "`major_name`,`qq_account`,\n" +
+            "`wechat_account`,`email`,`city`,`slogan`,`profile_photo`,`phone_number`,`company`,`job`,`in_school`,`is_deleted`\n" +
             "FROM users WHERE id = #{id}")
     public User get_user_by_id(@Param("id") Integer id);
 
@@ -59,7 +60,7 @@ public interface UserMapper {
     @Update("update users set phone_number = #{phone_number} where id = #{id}")
     Integer update_user_number(@Param("id") int parseInt,@Param("phone_number") long phone_number);
 
-    @Update("update users set is_deleted = 1 where id = #{id}")
+    @Update("update users set is_deleted = 0 where id = #{id}")
     Integer log_in(@Param("id") Integer id);
 
     @Select("select password,slat from users where id = #{id} limit 1")

@@ -21,7 +21,9 @@ public interface UserService {
 
     CheckResult update_user(JSONObject jsonObject,int id) ;
 
-    CheckResult change_password(String password, int parseInt,String old_password);
+    String log_in_at_first(String token);
+
+    CheckResult change_password(String password, int parseInt, String old_password);
 
 
     CheckResult get_stu_id_by_phone_number(long phone_number);
